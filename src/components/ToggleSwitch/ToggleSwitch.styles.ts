@@ -1,9 +1,3 @@
-/**
- * ToggleSwitch Styles
- *
- * Centralized style configurations for the ToggleSwitch component
- */
-
 import type { SizeConfig, ColorConfig } from '@/types'
 
 interface ToggleSwitchSizeConfig {

@@ -1,4 +1,10 @@
-import { useState, useCallback, useRef, type MouseEvent } from 'react'
+import {
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  type MouseEvent,
+} from 'react'
 
 interface RippleEffect {
   id: number
@@ -7,42 +13,16 @@ interface RippleEffect {
 }
 
 interface UseRippleOptions {
-  /** Duration of ripple animation in ms */
   duration?: number
-  /** Whether ripple is disabled */
   disabled?: boolean
 }
 
 interface UseRippleReturn<T extends HTMLElement> {
-  /** Ref to attach to the target element */
   ref: React.RefObject<T | null>
-  /** Current active ripples */
   ripples: RippleEffect[]
-  /** Handler to create ripple on click */
   createRipple: (e: MouseEvent<T>) => void
 }
 
-/**
- * Custom hook for creating ripple effects on click
- *
- * @example
- * ```tsx
- * const { ref, ripples, createRipple } = useRipple<HTMLButtonElement>()
- *
- * return (
- *   <button ref={ref} onClick={createRipple}>
- *     {ripples.map(ripple => (
- *       <span
- *         key={ripple.id}
- *         style={{ left: ripple.x, top: ripple.y }}
- *         className="ripple"
- *       />
- *     ))}
- *     Click me
- *   </button>
- * )
- * ```
- */
 export function useRipple<T extends HTMLElement = HTMLElement>(
   options: UseRippleOptions = {}
 ): UseRippleReturn<T> {
@@ -51,6 +31,13 @@ export function useRipple<T extends HTMLElement = HTMLElement>(
   const [ripples, setRipples] = useState<RippleEffect[]>([])
   const ref = useRef<T>(null)
   const rippleIdRef = useRef(0)
+  const timeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set())
+
+  useEffect(() => {
+    return () => {
+      timeoutsRef.current.forEach(clearTimeout)
+    }
+  }, [])
 
   const createRipple = useCallback(
     (e: MouseEvent<T>) => {
@@ -60,30 +47,25 @@ export function useRipple<T extends HTMLElement = HTMLElement>(
       if (!element) return
 
       const rect = element.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
-
       const newRipple: RippleEffect = {
         id: rippleIdRef.current++,
-        x,
-        y,
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
       }
 
       setRipples(prev => [...prev, newRipple])
 
-      // Clean up ripple after animation
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         setRipples(prev => prev.filter(r => r.id !== newRipple.id))
+        timeoutsRef.current.delete(timeoutId)
       }, duration)
+
+      timeoutsRef.current.add(timeoutId)
     },
     [disabled, duration]
   )
 
-  return {
-    ref,
-    ripples,
-    createRipple,
-  }
+  return { ref, ripples, createRipple }
 }
 
 export type { RippleEffect }

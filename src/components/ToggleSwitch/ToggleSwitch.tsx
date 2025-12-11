@@ -1,4 +1,4 @@
-import { type ReactNode, useId, useCallback } from 'react'
+import { type ReactNode, useId, useCallback, useMemo } from 'react'
 import { motion, type HTMLMotionProps } from 'framer-motion'
 import { cn } from '@/lib/utils'
 import { springFast, easeStandard, tapScaleGentle } from '@/lib/animations'
@@ -12,40 +12,18 @@ import type { Size, ColorScheme, LabelPosition } from '@/types'
 
 export interface ToggleSwitchProps
   extends Omit<HTMLMotionProps<'button'>, 'children' | 'onChange'> {
-  /** Whether the switch is on */
   checked?: boolean
-  /** Callback when the switch state changes */
   onChange?: (checked: boolean) => void
-  /** Size variant */
   size?: Size
-  /** Color scheme for the on state */
   colorScheme?: ColorScheme
-  /** Icon to show when switch is off */
   offIcon?: ReactNode
-  /** Icon to show when switch is on */
   onIcon?: ReactNode
-  /** Label text */
   label?: string
-  /** Position of the label */
   labelPosition?: LabelPosition
-  /** Accessible label for screen readers. If not provided and label exists, uses label */
   'aria-label'?: string
-  /** ID of element that describes the switch */
   'aria-describedby'?: string
 }
 
-/**
- * ToggleSwitch - A neumorphic toggle switch with soft shadows
- *
- * Inspired by: https://www.framer.com/marketplace/components/neoswitch/
- *
- * Features:
- * - Clean neumorphic aesthetic with soft shadows
- * - Smooth toggle animation
- * - Tactile, 3D appearance
- * - Multiple color schemes
- * - Optional icons
- */
 export function ToggleSwitch({
   checked = false,
   onChange,
@@ -64,13 +42,13 @@ export function ToggleSwitch({
   const config = sizeConfig[size]
   const accentColor = colorConfig[colorScheme]
 
-  const knobTravel = config.track.width - config.knob - config.padding * 2
+  const knobTravel = useMemo(
+    () => config.track.width - config.knob - config.padding * 2,
+    [config.track.width, config.knob, config.padding]
+  )
 
-  // Generate stable unique ID for label association if label exists
   const generatedId = useId()
   const labelId = label ? `toggle-label-${generatedId}` : undefined
-
-  // Use aria-label if provided, otherwise use label if available
   const accessibleLabel = ariaLabel || (label ? undefined : 'Toggle switch')
 
   const handleToggle = useCallback(() => {
@@ -80,7 +58,6 @@ export function ToggleSwitch({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLButtonElement>) => {
-      // Allow Space and Enter to toggle
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault()
         handleToggle()
@@ -111,17 +88,15 @@ export function ToggleSwitch({
         checked ? 'focus-visible:ring-blue-400' : 'focus-visible:ring-zinc-400',
         className
       )}
-      style={
-        {
-          width: config.track.width,
-          height: config.track.height,
-          ...(props.style as Record<string, unknown>),
-        } as React.CSSProperties
-      }
+      style={{
+        width: config.track.width,
+        height: config.track.height,
+        ...(props.style as Record<string, unknown>),
+      }}
       whileTap={disabled ? undefined : tapScaleGentle}
       {...props}
     >
-      {/* Track - Inset neumorphic effect */}
+      {/* Track */}
       <motion.div
         className={cn(
           'absolute inset-0 rounded-full',
@@ -136,18 +111,16 @@ export function ToggleSwitch({
         transition={easeStandard}
       />
 
-      {/* Inner track highlight */}
+      {/* Track highlight */}
       <motion.div
         className={cn(
           'absolute rounded-full bg-[var(--color-surface-highlight)] top-0.5 left-0.5 right-0.5 bottom-0.5'
         )}
-        animate={{
-          opacity: checked ? 0.15 : 0,
-        }}
+        animate={{ opacity: checked ? 0.15 : 0 }}
         transition={easeStandard}
       />
 
-      {/* Knob - Raised neumorphic effect */}
+      {/* Knob */}
       <motion.div
         className={cn('absolute rounded-full', baseStyles.knob)}
         style={{
@@ -160,13 +133,11 @@ export function ToggleSwitch({
           x: checked ? knobTravel : 0,
           boxShadow: shadowStyles.knobShadow,
         }}
-        whileTap={{
-          boxShadow: shadowStyles.knobShadowPressed,
-        }}
+        whileTap={{ boxShadow: shadowStyles.knobShadowPressed }}
         transition={springFast}
       />
 
-      {/* Knob inner highlight */}
+      {/* Knob highlight */}
       <motion.div
         className={cn(
           'absolute rounded-full pointer-events-none',
@@ -178,13 +149,11 @@ export function ToggleSwitch({
           top: config.padding + 3,
           left: config.padding + 3,
         }}
-        animate={{
-          x: checked ? knobTravel : 0,
-        }}
+        animate={{ x: checked ? knobTravel : 0 }}
         transition={springFast}
       />
 
-      {/* Icon inside knob */}
+      {/* Icon */}
       {(offIcon || onIcon) && (
         <motion.div
           className={cn(
@@ -196,9 +165,7 @@ export function ToggleSwitch({
             top: config.padding,
             left: config.padding,
           }}
-          animate={{
-            x: checked ? knobTravel : 0,
-          }}
+          animate={{ x: checked ? knobTravel : 0 }}
           transition={springFast}
         >
           <motion.span

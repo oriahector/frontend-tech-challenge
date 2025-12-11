@@ -1,20 +1,14 @@
-import { useState, useCallback, useRef, type RefObject } from 'react'
+import { useState, useCallback, useRef, useEffect, type RefObject } from 'react'
 
 interface UseHoverOptions {
-  /** Delay before hover state becomes true (ms) */
   enterDelay?: number
-  /** Delay before hover state becomes false (ms) */
   leaveDelay?: number
-  /** Callback when hover state changes */
   onHoverChange?: (isHovered: boolean) => void
 }
 
 interface UseHoverReturn<T extends HTMLElement> {
-  /** Ref to attach to the target element */
   ref: RefObject<T | null>
-  /** Current hover state */
   isHovered: boolean
-  /** Props to spread on the target element */
   hoverProps: {
     onMouseEnter: () => void
     onMouseLeave: () => void
@@ -23,20 +17,6 @@ interface UseHoverReturn<T extends HTMLElement> {
   }
 }
 
-/**
- * Custom hook for tracking hover state on an element
- *
- * @example
- * ```tsx
- * const { ref, isHovered, hoverProps } = useHover<HTMLButtonElement>()
- *
- * return (
- *   <button ref={ref} {...hoverProps}>
- *     {isHovered ? 'Hovering!' : 'Hover me'}
- *   </button>
- * )
- * ```
- */
 export function useHover<T extends HTMLElement = HTMLElement>(
   options: UseHoverOptions = {}
 ): UseHoverReturn<T> {
@@ -44,11 +24,21 @@ export function useHover<T extends HTMLElement = HTMLElement>(
 
   const [isHovered, setIsHovered] = useState(false)
   const ref = useRef<T>(null)
-  const enterTimeoutRef = useRef<ReturnType<typeof setTimeout>>()
-  const leaveTimeoutRef = useRef<ReturnType<typeof setTimeout>>()
+  const enterTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  )
+  const leaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  )
+
+  useEffect(() => {
+    return () => {
+      if (enterTimeoutRef.current) clearTimeout(enterTimeoutRef.current)
+      if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current)
+    }
+  }, [])
 
   const handleMouseEnter = useCallback(() => {
-    // Clear any pending leave timeout
     if (leaveTimeoutRef.current) {
       clearTimeout(leaveTimeoutRef.current)
       leaveTimeoutRef.current = undefined
@@ -66,7 +56,6 @@ export function useHover<T extends HTMLElement = HTMLElement>(
   }, [enterDelay, onHoverChange])
 
   const handleMouseLeave = useCallback(() => {
-    // Clear any pending enter timeout
     if (enterTimeoutRef.current) {
       clearTimeout(enterTimeoutRef.current)
       enterTimeoutRef.current = undefined
@@ -90,11 +79,7 @@ export function useHover<T extends HTMLElement = HTMLElement>(
     onBlur: handleMouseLeave,
   }
 
-  return {
-    ref,
-    isHovered,
-    hoverProps,
-  }
+  return { ref, isHovered, hoverProps }
 }
 
 export default useHover
