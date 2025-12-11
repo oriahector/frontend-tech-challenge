@@ -4,6 +4,8 @@
  * Centralized style configurations for the BackButton component
  */
 
+import { cn } from '../../lib/utils'
+
 export const sizeConfig = {
   sm: {
     button: 'h-9 min-w-9 text-sm gap-1.5',
@@ -41,12 +43,11 @@ export const variantConfig = {
 } as const
 
 export const baseStyles = {
-  button: [
+  button: cn(
     'relative inline-flex items-center justify-center overflow-hidden',
     'rounded-full font-medium cursor-pointer',
     'transition-colors duration-200',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2',
-    'disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed',
-  ].join(' '),
+    'disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed'
+  ),
 } as const
-

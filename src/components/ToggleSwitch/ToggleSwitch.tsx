@@ -107,58 +107,56 @@ export function ToggleSwitch({
       tabIndex={disabled ? -1 : 0}
       className={cn(
         'relative rounded-full cursor-pointer',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#e0e5ec]',
+        baseStyles.track,
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         'disabled:cursor-not-allowed disabled:opacity-50',
         checked ? 'focus-visible:ring-blue-400' : 'focus-visible:ring-zinc-400',
         className
       )}
-      style={{
-        width: config.track.width,
-        height: config.track.height,
-        backgroundColor: baseStyles.track.backgroundColor,
-      }}
+      style={
+        {
+          width: config.track.width,
+          height: config.track.height,
+          ...(props.style as Record<string, unknown>),
+        } as React.CSSProperties
+      }
       whileTap={disabled ? undefined : { scale: 0.96 }}
       {...props}
     >
       {/* Track - Inset neumorphic effect */}
       <motion.div
-        className={cn('absolute inset-0 rounded-full')}
+        className={cn(
+          'absolute inset-0 rounded-full',
+          !checked && baseStyles.track
+        )}
         animate={{
           boxShadow: checked
             ? shadowStyles.trackShadowOn
             : shadowStyles.trackShadowOff,
-          backgroundColor: checked
-            ? accentColor
-            : baseStyles.track.backgroundColor,
+          backgroundColor: checked ? accentColor : undefined,
         }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
       />
 
       {/* Inner track highlight */}
       <motion.div
-        className={cn('absolute rounded-full')}
-        style={{
-          top: 2,
-          left: 2,
-          right: 2,
-          bottom: 2,
-        }}
+        className={cn(
+          'absolute rounded-full bg-[var(--color-surface-highlight)] top-0.5 left-0.5 right-0.5 bottom-0.5'
+        )}
         animate={{
           opacity: checked ? 0.15 : 0,
-          backgroundColor: '#ffffff',
         }}
         transition={{ duration: 0.3 }}
       />
 
       {/* Knob - Raised neumorphic effect */}
       <motion.div
-        className={cn('absolute rounded-full')}
+        className={cn('absolute rounded-full', baseStyles.knob)}
         style={{
           width: config.knob,
           height: config.knob,
           top: config.padding,
           left: config.padding,
-          background: baseStyles.knob.background,
         }}
         animate={{
           x: checked ? knobTravel : 0,
@@ -172,13 +170,15 @@ export function ToggleSwitch({
 
       {/* Knob inner highlight */}
       <motion.div
-        className={cn('absolute rounded-full pointer-events-none')}
+        className={cn(
+          'absolute rounded-full pointer-events-none',
+          baseStyles.knobHighlight
+        )}
         style={{
           width: config.knob - 6,
           height: config.knob - 6,
           top: config.padding + 3,
           left: config.padding + 3,
-          background: baseStyles.knobHighlight.background,
         }}
         animate={{
           x: checked ? knobTravel : 0,

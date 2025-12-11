@@ -32,25 +32,18 @@ export const sizeConfig = {
 } as const
 
 export const colorConfig = {
-  emerald: '#10b981',
-  blue: '#3b82f6',
-  violet: '#8b5cf6',
-  rose: '#f43f5e',
-  amber: '#f59e0b',
-  neutral: '#a1a1aa',
+  emerald: 'var(--color-emerald-500)',
+  blue: 'var(--color-blue-500)',
+  violet: 'var(--color-violet-500)',
+  rose: 'var(--color-rose-500)',
+  amber: 'var(--color-amber-500)',
+  neutral: 'var(--color-neutral-400)',
 } as const
 
 export const baseStyles = {
-  track: {
-    backgroundColor: '#e0e5ec',
-  },
-  knob: {
-    background: 'linear-gradient(145deg, #f0f5fa, #d1d9e6)',
-  },
-  knobHighlight: {
-    background:
-      'linear-gradient(145deg, rgba(255,255,255,0.8), rgba(255,255,255,0))',
-  },
+  track: 'bg-[var(--color-surface-base)]',
+  knob: 'bg-gradient-to-br from-[var(--color-surface-elevated-start)] to-[var(--color-surface-elevated-end)]',
+  knobHighlight: 'bg-gradient-to-br from-white/80 to-transparent',
 } as const
 
 export const shadowStyles = {
@@ -74,4 +67,3 @@ export const shadowStyles = {
     -1px -1px 4px rgba(255, 255, 255, 0.6)
   `,
 } as const
-

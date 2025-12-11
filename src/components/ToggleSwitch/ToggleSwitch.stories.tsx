@@ -126,16 +126,38 @@ export const Sizes: Story = {
  * All color schemes displayed together.
  */
 export const ColorSchemes: Story = {
-  render: () => (
-    <div className="flex flex-col gap-4">
-      {(['emerald', 'blue', 'violet', 'rose', 'amber'] as const).map(color => (
-        <div key={color} className="flex items-center gap-4">
-          <span className="w-16 text-sm text-zinc-500 capitalize">{color}</span>
-          <ToggleSwitch checked={true} colorScheme={color} />
-        </div>
-      ))}
-    </div>
-  ),
+  render: function ColorSchemesDemo() {
+    const [colorSchemes, setColorSchemes] = useState({
+      emerald: true,
+      blue: true,
+      violet: true,
+      rose: true,
+      amber: true,
+    })
+    return (
+      <div className="flex flex-col gap-4">
+        {(['emerald', 'blue', 'violet', 'rose', 'amber'] as const).map(
+          color => (
+            <div key={color} className="flex items-center gap-4">
+              <span className="w-16 text-sm text-zinc-500 capitalize">
+                {color}
+              </span>
+              <ToggleSwitch
+                checked={colorSchemes[color]}
+                onChange={v =>
+                  setColorSchemes(s => ({
+                    ...s,
+                    [color]: v,
+                  }))
+                }
+                colorScheme={color}
+              />
+            </div>
+          )
+        )}
+      </div>
+    )
+  },
 }
 
 /**

@@ -1,1 +1,17 @@
-@import "tailwindcss";
+@import 'tailwindcss';
+
+@theme {
+  /* Semantic Color Schemes */
+  --color-emerald-500: #10b981;
+  --color-blue-500: #3b82f6;
+  --color-violet-500: #8b5cf6;
+  --color-rose-500: #f43f5e;
+  --color-amber-500: #f59e0b;
+  --color-neutral-400: #a1a1aa;
+
+  /* Surface Colors - Reusable across components */
+  --color-surface-base: #e0e5ec;
+  --color-surface-elevated-start: #f0f5fa;
+  --color-surface-elevated-end: #d1d9e6;
+  --color-surface-highlight: #ffffff;
+}
