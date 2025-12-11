@@ -143,6 +143,7 @@ export const Disabled: Story = {
  * All variants displayed together for comparison.
  */
 export const AllVariants: Story = {
+  args: { value: 'Text' },
   render: () => (
     <div className="flex flex-col gap-8">
       <div className="flex items-center gap-4">
@@ -171,6 +172,7 @@ export const AllVariants: Story = {
  * Example usage in a code block context.
  */
 export const CodeBlockExample: Story = {
+  args: { value: 'npm install @design-system/components' },
   render: () => (
     <div className="relative bg-zinc-900 rounded-lg p-4 pr-14 font-mono text-sm text-zinc-100">
       <code>npm install @design-system/components</code>
