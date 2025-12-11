@@ -188,8 +188,6 @@ export function BackButton({
         config.button,
         // Variant config
         variantStyles.base,
-        // Padding adjusts when hovered to accommodate text
-        isHovered ? config.padding : '',
         className
       )}
       onMouseEnter={() => setIsHovered(true)}
@@ -227,28 +225,26 @@ export function BackButton({
         </AnimatePresence>
       </span>
 
-      {/* Arrow icon */}
-      <motion.span
-        className="relative z-10 flex items-center justify-center shrink-0"
-        variants={arrowVariants}
-      >
-        <ArrowLeft size={config.icon} strokeWidth={2.5} />
-      </motion.span>
+      {/* Inner container with fixed padding to prevent layout shifts */}
+      <span className={cn('relative z-10 flex items-center', config.padding)}>
+        {/* Arrow icon */}
+        <motion.span
+          className="relative flex items-center justify-center shrink-0"
+          variants={arrowVariants}
+        >
+          <ArrowLeft size={config.icon} strokeWidth={2.5} />
+        </motion.span>
 
-      {/* Text reveal on hover */}
-      <AnimatePresence mode="wait">
-        {isHovered && (
-          <motion.span
-            className="relative z-10 overflow-hidden whitespace-nowrap"
-            variants={textVariants}
-            initial="initial"
-            animate="hover"
-            exit="exit"
-          >
-            <span className="inline-block">{label}</span>
-          </motion.span>
-        )}
-      </AnimatePresence>
+        {/* Text reveal on hover */}
+        <motion.span
+          className="relative overflow-hidden whitespace-nowrap"
+          variants={textVariants}
+          initial="initial"
+          animate={isHovered ? 'hover' : 'initial'}
+        >
+          <span className="inline-block">{label}</span>
+        </motion.span>
+      </span>
     </motion.button>
   )
 }
