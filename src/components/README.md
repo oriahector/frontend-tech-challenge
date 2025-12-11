@@ -81,4 +81,4 @@ This project uses TypeScript path aliases for cleaner imports:
 
 This makes imports cleaner and easier to refactor!
 
-Check the `examples/` folder for a working example!
+Each component has its own folder with the component, stories, and styles files.

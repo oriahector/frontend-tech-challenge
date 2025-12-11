@@ -6,7 +6,8 @@ import {
   type HTMLMotionProps,
 } from 'framer-motion'
 import { ArrowLeft } from 'lucide-react'
-import { cn } from '../lib/utils'
+import { cn } from '../../lib/utils'
+import { sizeConfig, variantConfig, baseStyles } from './BackButton.styles'
 
 interface RippleEffect {
   id: number
@@ -22,42 +23,8 @@ export interface BackButtonProps
   size?: 'sm' | 'md' | 'lg'
   /** Visual variant */
   variant?: 'default' | 'ghost' | 'outline'
-}
-
-const sizeConfig = {
-  sm: {
-    button: 'h-9 min-w-9 text-sm gap-1.5',
-    buttonFixed: 'h-9 w-9 text-sm gap-1.5',
-    icon: 16,
-    padding: 'px-2.5',
-  },
-  md: {
-    button: 'h-11 min-w-11 text-base gap-2',
-    buttonFixed: 'h-11 w-11 text-base gap-2',
-    icon: 20,
-    padding: 'px-3',
-  },
-  lg: {
-    button: 'h-14 min-w-14 text-lg gap-2.5',
-    buttonFixed: 'h-14 w-14 text-lg gap-2.5',
-    icon: 24,
-    padding: 'px-4',
-  },
-}
-
-const variantConfig = {
-  default: {
-    base: 'bg-zinc-900 text-zinc-50 hover:bg-zinc-800',
-    ripple: 'bg-white/25',
-  },
-  ghost: {
-    base: 'bg-transparent text-zinc-900 hover:bg-zinc-100',
-    ripple: 'bg-zinc-900/15',
-  },
-  outline: {
-    base: 'bg-transparent text-zinc-900 border-2 border-zinc-300 hover:border-zinc-400 hover:bg-zinc-50',
-    ripple: 'bg-zinc-900/10',
-  },
+  /** Accessible label for screen readers. If not provided, uses label prop */
+  'aria-label'?: string
 }
 
 const arrowVariants: Variants = {
@@ -140,6 +107,7 @@ export function BackButton({
   onClick,
   className,
   disabled,
+  'aria-label': ariaLabel,
   ...props
 }: BackButtonProps) {
   const [isHovered, setIsHovered] = useState(false)
@@ -149,6 +117,9 @@ export function BackButton({
 
   const config = sizeConfig[size]
   const variantStyles = variantConfig[variant]
+
+  // Use aria-label if provided, otherwise use label prop
+  const accessibleLabel = ariaLabel || label
 
   const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
     if (disabled) return
@@ -177,16 +148,25 @@ export function BackButton({
     onClick?.(e)
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    // Allow Enter and Space to trigger click
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      if (!disabled) {
+        handleClick(e as unknown as MouseEvent<HTMLButtonElement>)
+      }
+    }
+  }
+
   return (
     <motion.button
       ref={buttonRef}
+      type="button"
+      role="button"
+      aria-label={accessibleLabel}
+      aria-disabled={disabled}
       className={cn(
-        // Base styles
-        'relative inline-flex items-center justify-center overflow-hidden',
-        'rounded-full font-medium cursor-pointer',
-        'transition-colors duration-200',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2',
-        'disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed',
+        baseStyles.button,
         // Size config - use fixed width for outline variant when not hovered to ensure perfect circle
         variant === 'outline' && !isHovered
           ? config.buttonFixed
@@ -198,14 +178,16 @@ export function BackButton({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
       disabled={disabled}
+      tabIndex={disabled ? -1 : 0}
       initial="initial"
       animate={isHovered ? 'hover' : 'initial'}
       whileTap={{ scale: 0.97 }}
       {...props}
     >
       {/* Ripple effects container */}
-      <span className="absolute inset-0 overflow-hidden rounded-full">
+      <span className={cn('absolute inset-0 overflow-hidden rounded-full')}>
         <AnimatePresence>
           {ripples.map(ripple => (
             <motion.span
@@ -234,20 +216,21 @@ export function BackButton({
       <span className={cn('relative z-10 flex items-center', config.padding)}>
         {/* Arrow icon */}
         <motion.span
-          className="relative flex items-center justify-center shrink-0"
+          className={cn('relative flex items-center justify-center shrink-0')}
           variants={arrowVariants}
+          aria-hidden="true"
         >
-          <ArrowLeft size={config.icon} strokeWidth={2.5} />
+          <ArrowLeft size={config.icon} strokeWidth={2.5} aria-hidden="true" />
         </motion.span>
 
         {/* Text reveal on hover */}
         <motion.span
-          className="relative overflow-hidden whitespace-nowrap"
+          className={cn('relative overflow-hidden whitespace-nowrap')}
           variants={textVariants}
           initial="initial"
           animate={isHovered ? 'hover' : 'initial'}
         >
-          <span className="inline-block">{label}</span>
+          <span className={cn('inline-block')}>{label}</span>
         </motion.span>
       </span>
     </motion.button>

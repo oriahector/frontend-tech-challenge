@@ -1,6 +1,15 @@
 import { useState } from 'react'
-import type { Meta, StoryObj } from '@storybook/react'
-import { Sun, Moon, Volume2, VolumeX, Wifi, WifiOff, Check, X } from 'lucide-react'
+import type { Meta, StoryObj } from '@storybook/react-vite'
+import {
+  Sun,
+  Moon,
+  Volume2,
+  VolumeX,
+  Wifi,
+  WifiOff,
+  Check,
+  X,
+} from 'lucide-react'
 import { ToggleSwitch } from './ToggleSwitch'
 
 const meta = {
@@ -299,4 +308,3 @@ export const SettingsPanel: Story = {
     )
   },
 }
-

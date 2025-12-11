@@ -1,6 +1,12 @@
-import { type ReactNode } from 'react'
+import { type ReactNode, useId } from 'react'
 import { motion, type HTMLMotionProps } from 'framer-motion'
-import { cn } from '../lib/utils'
+import { cn } from '../../lib/utils'
+import {
+  sizeConfig,
+  colorConfig,
+  baseStyles,
+  shadowStyles,
+} from './ToggleSwitch.styles'
 
 export interface ToggleSwitchProps
   extends Omit<HTMLMotionProps<'button'>, 'children' | 'onChange'> {
@@ -20,42 +26,10 @@ export interface ToggleSwitchProps
   label?: string
   /** Position of the label */
   labelPosition?: 'left' | 'right'
-}
-
-const sizeConfig = {
-  sm: {
-    track: { width: 48, height: 28 },
-    knob: 22,
-    padding: 3,
-    icon: 12,
-    label: 'text-sm',
-    gap: 'gap-2',
-  },
-  md: {
-    track: { width: 60, height: 34 },
-    knob: 26,
-    padding: 4,
-    icon: 14,
-    label: 'text-base',
-    gap: 'gap-3',
-  },
-  lg: {
-    track: { width: 76, height: 42 },
-    knob: 34,
-    padding: 4,
-    icon: 18,
-    label: 'text-lg',
-    gap: 'gap-4',
-  },
-}
-
-const colorConfig = {
-  emerald: '#10b981',
-  blue: '#3b82f6',
-  violet: '#8b5cf6',
-  rose: '#f43f5e',
-  amber: '#f59e0b',
-  neutral: '#a1a1aa',
+  /** Accessible label for screen readers. If not provided and label exists, uses label */
+  'aria-label'?: string
+  /** ID of element that describes the switch */
+  'aria-describedby'?: string
 }
 
 // Spring animation for smooth, natural movement
@@ -88,6 +62,8 @@ export function ToggleSwitch({
   labelPosition = 'right',
   disabled,
   className,
+  'aria-label': ariaLabel,
+  'aria-describedby': ariaDescribedBy,
   ...props
 }: ToggleSwitchProps) {
   const config = sizeConfig[size]
@@ -95,42 +71,40 @@ export function ToggleSwitch({
 
   const knobTravel = config.track.width - config.knob - config.padding * 2
 
+  // Generate stable unique ID for label association if label exists
+  const generatedId = useId()
+  const labelId = label ? `toggle-label-${generatedId}` : undefined
+
+  // Use aria-label if provided, otherwise use label if available
+  const accessibleLabel = ariaLabel || (label ? undefined : 'Toggle switch')
+
   const handleToggle = () => {
     if (disabled) return
     onChange?.(!checked)
   }
 
-  // Neumorphic shadow styles
-  const trackShadowOff = `
-    inset 4px 4px 8px rgba(0, 0, 0, 0.1),
-    inset -4px -4px 8px rgba(255, 255, 255, 0.9),
-    inset 1px 1px 2px rgba(0, 0, 0, 0.05)
-  `
-
-  const trackShadowOn = `
-    inset 4px 4px 8px rgba(0, 0, 0, 0.15),
-    inset -4px -4px 8px rgba(255, 255, 255, 0.1),
-    inset 1px 1px 2px rgba(0, 0, 0, 0.1)
-  `
-
-  const knobShadow = `
-    4px 4px 10px rgba(0, 0, 0, 0.15),
-    -2px -2px 8px rgba(255, 255, 255, 0.8),
-    1px 1px 3px rgba(0, 0, 0, 0.1)
-  `
-
-  const knobShadowPressed = `
-    2px 2px 6px rgba(0, 0, 0, 0.12),
-    -1px -1px 4px rgba(255, 255, 255, 0.6)
-  `
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
+    // Allow Space and Enter to toggle
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault()
+      handleToggle()
+    }
+  }
 
   const switchElement = (
     <motion.button
       type="button"
       role="switch"
+      id={labelId}
       aria-checked={checked}
+      aria-label={accessibleLabel}
+      aria-labelledby={label ? labelId : undefined}
+      aria-describedby={ariaDescribedBy}
+      aria-disabled={disabled}
       disabled={disabled}
       onClick={handleToggle}
+      onKeyDown={handleKeyDown}
+      tabIndex={disabled ? -1 : 0}
       className={cn(
         'relative rounded-full cursor-pointer',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#e0e5ec]',
@@ -141,24 +115,28 @@ export function ToggleSwitch({
       style={{
         width: config.track.width,
         height: config.track.height,
-        backgroundColor: '#e0e5ec',
+        backgroundColor: baseStyles.track.backgroundColor,
       }}
       whileTap={disabled ? undefined : { scale: 0.96 }}
       {...props}
     >
       {/* Track - Inset neumorphic effect */}
       <motion.div
-        className="absolute inset-0 rounded-full"
+        className={cn('absolute inset-0 rounded-full')}
         animate={{
-          boxShadow: checked ? trackShadowOn : trackShadowOff,
-          backgroundColor: checked ? accentColor : '#e0e5ec',
+          boxShadow: checked
+            ? shadowStyles.trackShadowOn
+            : shadowStyles.trackShadowOff,
+          backgroundColor: checked
+            ? accentColor
+            : baseStyles.track.backgroundColor,
         }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
       />
 
       {/* Inner track highlight */}
       <motion.div
-        className="absolute rounded-full"
+        className={cn('absolute rounded-full')}
         style={{
           top: 2,
           left: 2,
@@ -174,33 +152,33 @@ export function ToggleSwitch({
 
       {/* Knob - Raised neumorphic effect */}
       <motion.div
-        className="absolute rounded-full"
+        className={cn('absolute rounded-full')}
         style={{
           width: config.knob,
           height: config.knob,
           top: config.padding,
           left: config.padding,
-          background: 'linear-gradient(145deg, #f0f5fa, #d1d9e6)',
+          background: baseStyles.knob.background,
         }}
         animate={{
           x: checked ? knobTravel : 0,
-          boxShadow: knobShadow,
+          boxShadow: shadowStyles.knobShadow,
         }}
         whileTap={{
-          boxShadow: knobShadowPressed,
+          boxShadow: shadowStyles.knobShadowPressed,
         }}
         transition={springTransition}
       />
 
       {/* Knob inner highlight */}
       <motion.div
-        className="absolute rounded-full pointer-events-none"
+        className={cn('absolute rounded-full pointer-events-none')}
         style={{
           width: config.knob - 6,
           height: config.knob - 6,
           top: config.padding + 3,
           left: config.padding + 3,
-          background: 'linear-gradient(145deg, rgba(255,255,255,0.8), rgba(255,255,255,0))',
+          background: baseStyles.knobHighlight.background,
         }}
         animate={{
           x: checked ? knobTravel : 0,
@@ -211,7 +189,9 @@ export function ToggleSwitch({
       {/* Icon inside knob */}
       {(offIcon || onIcon) && (
         <motion.div
-          className="absolute flex items-center justify-center pointer-events-none"
+          className={cn(
+            'absolute flex items-center justify-center pointer-events-none'
+          )}
           style={{
             width: config.knob,
             height: config.knob,
@@ -224,7 +204,7 @@ export function ToggleSwitch({
           transition={springTransition}
         >
           <motion.span
-            className="flex items-center justify-center text-zinc-500"
+            className={cn('flex items-center justify-center text-zinc-500')}
             style={{ width: config.icon, height: config.icon }}
             initial={false}
             animate={{ opacity: 1 }}
@@ -236,7 +216,9 @@ export function ToggleSwitch({
 
       {/* Indicator dots */}
       <div
-        className="absolute flex items-center justify-between px-2 pointer-events-none"
+        className={cn(
+          'absolute flex items-center justify-between px-2 pointer-events-none'
+        )}
         style={{
           top: '50%',
           left: config.padding,
@@ -245,16 +227,20 @@ export function ToggleSwitch({
         }}
       >
         <motion.div
-          className="w-1.5 h-1.5 rounded-full"
+          className={cn('w-1.5 h-1.5 rounded-full')}
           animate={{
-            backgroundColor: checked ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.1)',
+            backgroundColor: checked
+              ? 'rgba(255,255,255,0.5)'
+              : 'rgba(0,0,0,0.1)',
           }}
           transition={{ duration: 0.3 }}
         />
         <motion.div
-          className="w-1.5 h-1.5 rounded-full"
+          className={cn('w-1.5 h-1.5 rounded-full')}
           animate={{
-            backgroundColor: checked ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.15)',
+            backgroundColor: checked
+              ? 'rgba(255,255,255,0.3)'
+              : 'rgba(0,0,0,0.15)',
           }}
           transition={{ duration: 0.3 }}
         />
@@ -266,6 +252,8 @@ export function ToggleSwitch({
 
   return (
     <label
+      htmlFor={labelId}
+      id={labelId}
       className={cn(
         'inline-flex items-center cursor-pointer',
         config.gap,
