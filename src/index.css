@@ -14,4 +14,20 @@
   --color-surface-elevated-start: #f0f5fa;
   --color-surface-elevated-end: #d1d9e6;
   --color-surface-highlight: #ffffff;
+
+  /* Button Colors */
+  --color-button-primary: #18181b;
+  --color-button-primary-hover: #27272a;
+  --color-button-primary-text: #fafafa;
+  --color-button-secondary: #f4f4f5;
+  --color-button-secondary-hover: #e4e4e7;
+  --color-button-border: #d4d4d8;
+  --color-button-border-hover: #a1a1aa;
+
+  /* Text Colors */
+  --color-text-primary: #18181b;
+  --color-text-muted: #52525b;
+
+  /* Focus Ring */
+  --color-focus-ring: #09090b;
 }

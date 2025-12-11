@@ -85,7 +85,9 @@ export function ToggleSwitch({
         baseStyles.track,
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
         'disabled:cursor-not-allowed disabled:opacity-50',
-        checked ? 'focus-visible:ring-blue-400' : 'focus-visible:ring-zinc-400',
+        checked
+          ? 'focus-visible:ring-blue-400'
+          : 'focus-visible:ring-focus-ring/30',
         className
       )}
       style={{
@@ -169,7 +171,7 @@ export function ToggleSwitch({
           transition={springFast}
         >
           <motion.span
-            className={cn('flex items-center justify-center text-zinc-500')}
+            className={cn('flex items-center justify-center text-text-muted')}
             style={{ width: config.icon, height: config.icon }}
             initial={false}
             animate={{ opacity: 1 }}
@@ -227,7 +229,7 @@ export function ToggleSwitch({
       )}
     >
       {switchElement}
-      <span className={cn('select-none text-zinc-600', config.label)}>
+      <span className={cn('select-none text-text-muted', config.label)}>
         {label}
       </span>
     </label>

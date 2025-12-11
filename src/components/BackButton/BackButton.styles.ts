@@ -36,16 +36,16 @@ export const sizeConfig: SizeConfig<BackButtonSizeConfig> = {
 
 export const variantConfig: VariantConfig<BackButtonVariantConfig> = {
   default: {
-    base: 'bg-zinc-900 text-zinc-50 hover:bg-zinc-800',
+    base: 'bg-button-primary text-button-primary-text hover:bg-button-primary-hover',
     ripple: 'bg-white/25',
   },
   ghost: {
-    base: 'bg-transparent text-zinc-900 hover:bg-zinc-100',
-    ripple: 'bg-zinc-900/15',
+    base: 'bg-transparent text-text-primary hover:bg-button-secondary',
+    ripple: 'bg-text-primary/15',
   },
   outline: {
-    base: 'bg-transparent text-zinc-900 border-2 border-zinc-300 hover:border-zinc-400 hover:bg-zinc-50',
-    ripple: 'bg-zinc-900/10',
+    base: 'bg-transparent text-text-primary border-2 border-button-border hover:border-button-border-hover hover:bg-button-secondary',
+    ripple: 'bg-text-primary/10',
   },
 }
 
@@ -54,7 +54,7 @@ export const baseStyles = {
     'relative inline-flex items-center justify-center overflow-hidden',
     'rounded-full font-medium cursor-pointer',
     'transition-colors duration-200',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2',
     'disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed'
   ),
 } as const
