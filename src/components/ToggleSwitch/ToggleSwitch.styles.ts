@@ -46,8 +46,8 @@ export const colorConfig: ColorConfig<string> = {
 }
 
 export const baseStyles = {
-  track: 'bg-[var(--color-surface-base)]',
-  knob: 'bg-gradient-to-br from-[var(--color-surface-elevated-start)] to-[var(--color-surface-elevated-end)]',
+  track: 'bg-surface-base',
+  knob: 'bg-gradient-to-br from-surface-elevated-start to-surface-elevated-end',
   knobHighlight: 'bg-gradient-to-br from-white/80 to-transparent',
 } as const
 

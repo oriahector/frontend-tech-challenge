@@ -114,7 +114,7 @@ export function ToggleSwitch({
       {/* Track highlight */}
       <motion.div
         className={cn(
-          'absolute rounded-full bg-[var(--color-surface-highlight)] top-0.5 left-0.5 right-0.5 bottom-0.5'
+          'absolute rounded-full bg-surface-highlight top-0.5 left-0.5 right-0.5 bottom-0.5'
         )}
         animate={{ opacity: checked ? 0.15 : 0 }}
         transition={easeStandard}
