@@ -27,16 +27,19 @@ export interface BackButtonProps
 const sizeConfig = {
   sm: {
     button: 'h-9 min-w-9 text-sm gap-1.5',
+    buttonFixed: 'h-9 w-9 text-sm gap-1.5',
     icon: 16,
     padding: 'px-2.5',
   },
   md: {
     button: 'h-11 min-w-11 text-base gap-2',
+    buttonFixed: 'h-11 w-11 text-base gap-2',
     icon: 20,
     padding: 'px-3',
   },
   lg: {
     button: 'h-14 min-w-14 text-lg gap-2.5',
+    buttonFixed: 'h-14 w-14 text-lg gap-2.5',
     icon: 24,
     padding: 'px-4',
   },
@@ -184,8 +187,10 @@ export function BackButton({
         'transition-colors duration-200',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-950 focus-visible:ring-offset-2',
         'disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed',
-        // Size config
-        config.button,
+        // Size config - use fixed width for outline variant when not hovered to ensure perfect circle
+        variant === 'outline' && !isHovered
+          ? config.buttonFixed
+          : config.button,
         // Variant config
         variantStyles.base,
         className
