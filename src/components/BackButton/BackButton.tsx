@@ -6,16 +6,16 @@ import {
   type HTMLMotionProps,
 } from 'framer-motion'
 import { ArrowLeft } from 'lucide-react'
-import { cn } from '../../lib/utils'
-import { useHover, useRipple, type RippleEffect } from '../../hooks'
+import { cn } from '@/lib/utils'
+import { useHover, useRipple, type RippleEffect } from '@/hooks'
 import {
   springStandard,
   springFast,
   rippleVariants,
   tapScale,
-} from '../../lib/animations'
+} from '@/lib/animations'
 import { sizeConfig, variantConfig, baseStyles } from './BackButton.styles'
-import type { Size, ButtonVariant } from '../../types'
+import type { Size, ButtonVariant } from '@/types'
 
 export interface BackButtonProps
   extends Omit<HTMLMotionProps<'button'>, 'children'> {

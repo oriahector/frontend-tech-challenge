@@ -1,8 +1,7 @@
 import { useCallback, useState } from 'react'
 import './App.css'
-import { BackButton } from './components/BackButton'
-import { ToggleSwitch } from './components/ToggleSwitch'
-import { useToggle } from './hooks'
+import { BackButton, ToggleSwitch } from '@/components'
+import { useToggle } from '@/hooks'
 import {
   Sun,
   Moon,
@@ -13,7 +12,7 @@ import {
   Check,
   X,
 } from 'lucide-react'
-import type { ColorScheme } from './types'
+import type { ColorScheme } from '@/types'
 
 // Color schemes available for the demo
 const COLOR_SCHEMES: ColorScheme[] = [

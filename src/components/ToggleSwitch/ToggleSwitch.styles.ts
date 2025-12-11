@@ -4,7 +4,7 @@
  * Centralized style configurations for the ToggleSwitch component
  */
 
-import type { SizeConfig, ColorConfig } from '../../types'
+import type { SizeConfig, ColorConfig } from '@/types'
 
 interface ToggleSwitchSizeConfig {
   track: { width: number; height: number }

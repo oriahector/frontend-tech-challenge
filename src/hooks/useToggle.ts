@@ -47,8 +47,12 @@ export function useToggle(options: UseToggleOptions = {}): UseToggleReturn {
   )
 
   const toggle = useCallback(() => {
-    setValue(!value)
-  }, [value, setValue])
+    setValueInternal(prev => {
+      const newValue = !prev
+      onChange?.(newValue)
+      return newValue
+    })
+  }, [onChange])
 
   const setOn = useCallback(() => {
     setValue(true)

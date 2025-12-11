@@ -1,14 +1,14 @@
 import { type ReactNode, useId, useCallback } from 'react'
 import { motion, type HTMLMotionProps } from 'framer-motion'
-import { cn } from '../../lib/utils'
-import { springFast, easeStandard, tapScaleGentle } from '../../lib/animations'
+import { cn } from '@/lib/utils'
+import { springFast, easeStandard, tapScaleGentle } from '@/lib/animations'
 import {
   sizeConfig,
   colorConfig,
   baseStyles,
   shadowStyles,
 } from './ToggleSwitch.styles'
-import type { Size, ColorScheme, LabelPosition } from '../../types'
+import type { Size, ColorScheme, LabelPosition } from '@/types'
 
 export interface ToggleSwitchProps
   extends Omit<HTMLMotionProps<'button'>, 'children' | 'onChange'> {

@@ -4,8 +4,8 @@
  * Centralized style configurations for the BackButton component
  */
 
-import { cn } from '../../lib/utils'
-import type { SizeConfig, VariantConfig } from '../../types'
+import { cn } from '@/lib/utils'
+import type { SizeConfig, VariantConfig } from '@/types'
 
 interface BackButtonSizeConfig {
   button: string
