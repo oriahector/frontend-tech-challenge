@@ -8,7 +8,7 @@ import {
 
 function App() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-100 via-stone-50 to-zinc-100 py-16 px-6">
+    <div className="min-h-screen bg-surface-base py-16 px-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <header className="mb-16 text-center">
