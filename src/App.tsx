@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import './App.css'
 import { BackButton } from './components/BackButton'
 import { ToggleSwitch } from './components/ToggleSwitch'
+import { useToggle } from './hooks'
 import {
   Sun,
   Moon,
@@ -12,14 +13,29 @@ import {
   Check,
   X,
 } from 'lucide-react'
+import type { ColorScheme } from './types'
+
+// Color schemes available for the demo
+const COLOR_SCHEMES: ColorScheme[] = [
+  'emerald',
+  'blue',
+  'violet',
+  'rose',
+  'amber',
+]
 
 function App() {
-  const [toggleBasic, setToggleBasic] = useState(false)
+  // Main demo toggle using custom hook
+  const toggleBasic = useToggle({ initialValue: false })
+
+  // Sizes demo state
   const [toggleSizes, setToggleSizes] = useState({
     sm: true,
     md: true,
     lg: true,
   })
+
+  // Settings panel state
   const [settings, setSettings] = useState({
     notifications: true,
     darkMode: false,
@@ -27,25 +43,61 @@ function App() {
     analytics: false,
     sounds: true,
   })
+
+  // Icons demo state
   const [icons, setIcons] = useState({
     darkMode: false,
     sound: true,
     wifi: true,
     agree: false,
   })
-  const [colorSchemes, setColorSchemes] = useState({
-    emerald: { on: true, off: false },
-    blue: { on: true, off: false },
-    violet: { on: true, off: false },
-    rose: { on: true, off: false },
-    amber: { on: true, off: false },
+
+  // Color schemes demo state
+  const [colorSchemes, setColorSchemes] = useState<
+    Record<ColorScheme, boolean>
+  >({
+    emerald: true,
+    blue: true,
+    violet: true,
+    rose: true,
+    amber: true,
+    neutral: false,
   })
+
+  // Memoized handlers for better performance
+  const handleSizeToggle = useCallback(
+    (size: keyof typeof toggleSizes, value: boolean) => {
+      setToggleSizes(prev => ({ ...prev, [size]: value }))
+    },
+    []
+  )
+
+  const handleSettingToggle = useCallback(
+    (setting: keyof typeof settings, value: boolean) => {
+      setSettings(prev => ({ ...prev, [setting]: value }))
+    },
+    []
+  )
+
+  const handleIconToggle = useCallback(
+    (icon: keyof typeof icons, value: boolean) => {
+      setIcons(prev => ({ ...prev, [icon]: value }))
+    },
+    []
+  )
+
+  const handleColorSchemeToggle = useCallback(
+    (color: ColorScheme, value: boolean) => {
+      setColorSchemes(prev => ({ ...prev, [color]: value }))
+    },
+    []
+  )
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-zinc-100 via-stone-50 to-zinc-100 py-16 px-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="mb-16 text-center">
+        <header className="mb-16 text-center">
           <h1 className="text-5xl font-bold tracking-tight text-zinc-900 mb-4">
             Design System Components
           </h1>
@@ -53,7 +105,7 @@ function App() {
             Interactive components with smooth animations and delightful
             interactions
           </p>
-        </div>
+        </header>
 
         {/* BackButton Section */}
         <section className="mb-20">
@@ -159,15 +211,15 @@ function App() {
             </h3>
             <div className="flex flex-col items-center justify-center gap-6">
               <ToggleSwitch
-                checked={toggleBasic}
-                onChange={setToggleBasic}
+                checked={toggleBasic.value}
+                onChange={toggleBasic.setValue}
                 size="lg"
                 colorScheme="emerald"
               />
               <div className="flex items-center gap-3">
                 <span
                   className={`text-sm font-medium transition-colors ${
-                    !toggleBasic ? 'text-zinc-900' : 'text-zinc-400'
+                    !toggleBasic.value ? 'text-zinc-900' : 'text-zinc-400'
                   }`}
                 >
                   OFF
@@ -175,7 +227,7 @@ function App() {
                 <span className="text-zinc-400">•</span>
                 <span
                   className={`text-sm font-medium transition-colors ${
-                    toggleBasic ? 'text-emerald-600' : 'text-zinc-400'
+                    toggleBasic.value ? 'text-emerald-600' : 'text-zinc-400'
                   }`}
                 >
                   ON
@@ -190,26 +242,19 @@ function App() {
               Color Schemes
             </h3>
             <div className="flex flex-col gap-6">
-              {(['emerald', 'blue', 'violet', 'rose', 'amber'] as const).map(
-                color => (
-                  <div key={color} className="flex items-center gap-6">
-                    <span className="w-20 text-sm text-zinc-600 capitalize">
-                      {color}
-                    </span>
-                    <ToggleSwitch
-                      checked={colorSchemes[color].on}
-                      onChange={v =>
-                        setColorSchemes(s => ({
-                          ...s,
-                          [color]: { ...s[color], on: v },
-                        }))
-                      }
-                      colorScheme={color}
-                      size="md"
-                    />
-                  </div>
-                )
-              )}
+              {COLOR_SCHEMES.map(color => (
+                <div key={color} className="flex items-center gap-6">
+                  <span className="w-20 text-sm text-zinc-600 capitalize">
+                    {color}
+                  </span>
+                  <ToggleSwitch
+                    checked={colorSchemes[color]}
+                    onChange={v => handleColorSchemeToggle(color, v)}
+                    colorScheme={color}
+                    size="md"
+                  />
+                </div>
+              ))}
             </div>
           </div>
 
@@ -222,7 +267,7 @@ function App() {
               <div className="flex flex-col items-center gap-4">
                 <ToggleSwitch
                   checked={toggleSizes.sm}
-                  onChange={v => setToggleSizes(s => ({ ...s, sm: v }))}
+                  onChange={v => handleSizeToggle('sm', v)}
                   size="sm"
                   colorScheme="blue"
                 />
@@ -231,7 +276,7 @@ function App() {
               <div className="flex flex-col items-center gap-4">
                 <ToggleSwitch
                   checked={toggleSizes.md}
-                  onChange={v => setToggleSizes(s => ({ ...s, md: v }))}
+                  onChange={v => handleSizeToggle('md', v)}
                   size="md"
                   colorScheme="blue"
                 />
@@ -242,7 +287,7 @@ function App() {
               <div className="flex flex-col items-center gap-4">
                 <ToggleSwitch
                   checked={toggleSizes.lg}
-                  onChange={v => setToggleSizes(s => ({ ...s, lg: v }))}
+                  onChange={v => handleSizeToggle('lg', v)}
                   size="lg"
                   colorScheme="blue"
                 />
@@ -261,7 +306,7 @@ function App() {
                 <span className="w-28 text-sm text-zinc-600">Dark Mode</span>
                 <ToggleSwitch
                   checked={icons.darkMode}
-                  onChange={v => setIcons(s => ({ ...s, darkMode: v }))}
+                  onChange={v => handleIconToggle('darkMode', v)}
                   colorScheme="violet"
                   size="lg"
                   offIcon={<Sun className="w-full h-full text-amber-500" />}
@@ -272,7 +317,7 @@ function App() {
                 <span className="w-28 text-sm text-zinc-600">Sound</span>
                 <ToggleSwitch
                   checked={icons.sound}
-                  onChange={v => setIcons(s => ({ ...s, sound: v }))}
+                  onChange={v => handleIconToggle('sound', v)}
                   colorScheme="blue"
                   size="lg"
                   offIcon={<VolumeX className="w-full h-full text-zinc-400" />}
@@ -283,7 +328,7 @@ function App() {
                 <span className="w-28 text-sm text-zinc-600">WiFi</span>
                 <ToggleSwitch
                   checked={icons.wifi}
-                  onChange={v => setIcons(s => ({ ...s, wifi: v }))}
+                  onChange={v => handleIconToggle('wifi', v)}
                   colorScheme="emerald"
                   size="lg"
                   offIcon={<WifiOff className="w-full h-full text-zinc-400" />}
@@ -294,7 +339,7 @@ function App() {
                 <span className="w-28 text-sm text-zinc-600">Agree</span>
                 <ToggleSwitch
                   checked={icons.agree}
-                  onChange={v => setIcons(s => ({ ...s, agree: v }))}
+                  onChange={v => handleIconToggle('agree', v)}
                   colorScheme="rose"
                   size="lg"
                   offIcon={<X className="w-full h-full text-zinc-400" />}
@@ -321,9 +366,7 @@ function App() {
                     </span>
                     <ToggleSwitch
                       checked={settings.notifications}
-                      onChange={v =>
-                        setSettings(s => ({ ...s, notifications: v }))
-                      }
+                      onChange={v => handleSettingToggle('notifications', v)}
                       colorScheme="blue"
                       size="sm"
                     />
@@ -332,7 +375,7 @@ function App() {
                     <span className="text-sm text-zinc-700">Dark mode</span>
                     <ToggleSwitch
                       checked={settings.darkMode}
-                      onChange={v => setSettings(s => ({ ...s, darkMode: v }))}
+                      onChange={v => handleSettingToggle('darkMode', v)}
                       colorScheme="violet"
                       size="sm"
                     />
@@ -341,9 +384,7 @@ function App() {
                     <span className="text-sm text-zinc-700">Auto-update</span>
                     <ToggleSwitch
                       checked={settings.autoUpdate}
-                      onChange={v =>
-                        setSettings(s => ({ ...s, autoUpdate: v }))
-                      }
+                      onChange={v => handleSettingToggle('autoUpdate', v)}
                       colorScheme="emerald"
                       size="sm"
                     />
@@ -354,7 +395,7 @@ function App() {
                     </span>
                     <ToggleSwitch
                       checked={settings.analytics}
-                      onChange={v => setSettings(s => ({ ...s, analytics: v }))}
+                      onChange={v => handleSettingToggle('analytics', v)}
                       colorScheme="amber"
                       size="sm"
                     />
@@ -363,7 +404,7 @@ function App() {
                     <span className="text-sm text-zinc-700">Sound effects</span>
                     <ToggleSwitch
                       checked={settings.sounds}
-                      onChange={v => setSettings(s => ({ ...s, sounds: v }))}
+                      onChange={v => handleSettingToggle('sounds', v)}
                       colorScheme="rose"
                       size="sm"
                     />

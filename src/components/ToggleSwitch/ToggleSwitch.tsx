@@ -1,12 +1,14 @@
-import { type ReactNode, useId } from 'react'
+import { type ReactNode, useId, useCallback } from 'react'
 import { motion, type HTMLMotionProps } from 'framer-motion'
 import { cn } from '../../lib/utils'
+import { springFast, easeStandard, tapScaleGentle } from '../../lib/animations'
 import {
   sizeConfig,
   colorConfig,
   baseStyles,
   shadowStyles,
 } from './ToggleSwitch.styles'
+import type { Size, ColorScheme, LabelPosition } from '../../types'
 
 export interface ToggleSwitchProps
   extends Omit<HTMLMotionProps<'button'>, 'children' | 'onChange'> {
@@ -15,9 +17,9 @@ export interface ToggleSwitchProps
   /** Callback when the switch state changes */
   onChange?: (checked: boolean) => void
   /** Size variant */
-  size?: 'sm' | 'md' | 'lg'
+  size?: Size
   /** Color scheme for the on state */
-  colorScheme?: 'emerald' | 'blue' | 'violet' | 'rose' | 'amber' | 'neutral'
+  colorScheme?: ColorScheme
   /** Icon to show when switch is off */
   offIcon?: ReactNode
   /** Icon to show when switch is on */
@@ -25,18 +27,11 @@ export interface ToggleSwitchProps
   /** Label text */
   label?: string
   /** Position of the label */
-  labelPosition?: 'left' | 'right'
+  labelPosition?: LabelPosition
   /** Accessible label for screen readers. If not provided and label exists, uses label */
   'aria-label'?: string
   /** ID of element that describes the switch */
   'aria-describedby'?: string
-}
-
-// Spring animation for smooth, natural movement
-const springTransition = {
-  type: 'spring' as const,
-  stiffness: 500,
-  damping: 30,
 }
 
 /**
@@ -78,18 +73,21 @@ export function ToggleSwitch({
   // Use aria-label if provided, otherwise use label if available
   const accessibleLabel = ariaLabel || (label ? undefined : 'Toggle switch')
 
-  const handleToggle = () => {
+  const handleToggle = useCallback(() => {
     if (disabled) return
     onChange?.(!checked)
-  }
+  }, [disabled, onChange, checked])
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    // Allow Space and Enter to toggle
-    if (e.key === ' ' || e.key === 'Enter') {
-      e.preventDefault()
-      handleToggle()
-    }
-  }
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLButtonElement>) => {
+      // Allow Space and Enter to toggle
+      if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault()
+        handleToggle()
+      }
+    },
+    [handleToggle]
+  )
 
   const switchElement = (
     <motion.button
@@ -120,7 +118,7 @@ export function ToggleSwitch({
           ...(props.style as Record<string, unknown>),
         } as React.CSSProperties
       }
-      whileTap={disabled ? undefined : { scale: 0.96 }}
+      whileTap={disabled ? undefined : tapScaleGentle}
       {...props}
     >
       {/* Track - Inset neumorphic effect */}
@@ -135,7 +133,7 @@ export function ToggleSwitch({
             : shadowStyles.trackShadowOff,
           backgroundColor: checked ? accentColor : undefined,
         }}
-        transition={{ duration: 0.3, ease: 'easeInOut' }}
+        transition={easeStandard}
       />
 
       {/* Inner track highlight */}
@@ -146,7 +144,7 @@ export function ToggleSwitch({
         animate={{
           opacity: checked ? 0.15 : 0,
         }}
-        transition={{ duration: 0.3 }}
+        transition={easeStandard}
       />
 
       {/* Knob - Raised neumorphic effect */}
@@ -165,7 +163,7 @@ export function ToggleSwitch({
         whileTap={{
           boxShadow: shadowStyles.knobShadowPressed,
         }}
-        transition={springTransition}
+        transition={springFast}
       />
 
       {/* Knob inner highlight */}
@@ -183,7 +181,7 @@ export function ToggleSwitch({
         animate={{
           x: checked ? knobTravel : 0,
         }}
-        transition={springTransition}
+        transition={springFast}
       />
 
       {/* Icon inside knob */}
@@ -201,7 +199,7 @@ export function ToggleSwitch({
           animate={{
             x: checked ? knobTravel : 0,
           }}
-          transition={springTransition}
+          transition={springFast}
         >
           <motion.span
             className={cn('flex items-center justify-center text-zinc-500')}
@@ -233,7 +231,7 @@ export function ToggleSwitch({
               ? 'rgba(255,255,255,0.5)'
               : 'rgba(0,0,0,0.1)',
           }}
-          transition={{ duration: 0.3 }}
+          transition={easeStandard}
         />
         <motion.div
           className={cn('w-1.5 h-1.5 rounded-full')}
@@ -242,7 +240,7 @@ export function ToggleSwitch({
               ? 'rgba(255,255,255,0.3)'
               : 'rgba(0,0,0,0.15)',
           }}
-          transition={{ duration: 0.3 }}
+          transition={easeStandard}
         />
       </div>
     </motion.button>

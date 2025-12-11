@@ -4,7 +4,18 @@
  * Centralized style configurations for the ToggleSwitch component
  */
 
-export const sizeConfig = {
+import type { SizeConfig, ColorConfig } from '../../types'
+
+interface ToggleSwitchSizeConfig {
+  track: { width: number; height: number }
+  knob: number
+  padding: number
+  icon: number
+  label: string
+  gap: string
+}
+
+export const sizeConfig: SizeConfig<ToggleSwitchSizeConfig> = {
   sm: {
     track: { width: 48, height: 28 },
     knob: 22,
@@ -29,16 +40,16 @@ export const sizeConfig = {
     label: 'text-lg',
     gap: 'gap-4',
   },
-} as const
+}
 
-export const colorConfig = {
+export const colorConfig: ColorConfig<string> = {
   emerald: 'var(--color-emerald-500)',
   blue: 'var(--color-blue-500)',
   violet: 'var(--color-violet-500)',
   rose: 'var(--color-rose-500)',
   amber: 'var(--color-amber-500)',
   neutral: 'var(--color-neutral-400)',
-} as const
+}
 
 export const baseStyles = {
   track: 'bg-[var(--color-surface-base)]',

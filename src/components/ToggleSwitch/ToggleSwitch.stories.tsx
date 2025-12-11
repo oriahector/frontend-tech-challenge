@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
 import {
   Sun,
@@ -10,7 +10,7 @@ import {
   Check,
   X,
 } from 'lucide-react'
-import { ToggleSwitch } from './ToggleSwitch'
+import { ToggleSwitch, type ToggleSwitchProps } from './ToggleSwitch'
 
 const meta = {
   title: 'Components/ToggleSwitch',
@@ -60,6 +60,23 @@ export default meta
 type Story = StoryObj<typeof meta>
 
 /**
+ * Wrapper component to make stories interactive while respecting args
+ */
+function InteractiveWrapper({
+  checked: initialChecked = false,
+  ...props
+}: ToggleSwitchProps) {
+  const [checked, setChecked] = useState(initialChecked)
+
+  // Sync with Storybook controls
+  useEffect(() => {
+    setChecked(initialChecked)
+  }, [initialChecked])
+
+  return <ToggleSwitch {...props} checked={checked} onChange={setChecked} />
+}
+
+/**
  * Default toggle switch in the off state.
  * Click to toggle and see the smooth spring animation.
  */
@@ -67,6 +84,7 @@ export const Default: Story = {
   args: {
     checked: false,
   },
+  render: args => <InteractiveWrapper {...args} />,
 }
 
 /**
@@ -77,6 +95,7 @@ export const Checked: Story = {
   args: {
     checked: true,
   },
+  render: args => <InteractiveWrapper {...args} />,
 }
 
 /**

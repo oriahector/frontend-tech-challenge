@@ -1,4 +1,4 @@
-import { useState, useRef, type MouseEvent } from 'react'
+import { useCallback } from 'react'
 import {
   motion,
   AnimatePresence,
@@ -7,22 +7,24 @@ import {
 } from 'framer-motion'
 import { ArrowLeft } from 'lucide-react'
 import { cn } from '../../lib/utils'
+import { useHover, useRipple, type RippleEffect } from '../../hooks'
+import {
+  springStandard,
+  springFast,
+  rippleVariants,
+  tapScale,
+} from '../../lib/animations'
 import { sizeConfig, variantConfig, baseStyles } from './BackButton.styles'
-
-interface RippleEffect {
-  id: number
-  x: number
-  y: number
-}
+import type { Size, ButtonVariant } from '../../types'
 
 export interface BackButtonProps
   extends Omit<HTMLMotionProps<'button'>, 'children'> {
   /** Text label shown on hover */
   label?: string
   /** Size variant */
-  size?: 'sm' | 'md' | 'lg'
+  size?: Size
   /** Visual variant */
-  variant?: 'default' | 'ghost' | 'outline'
+  variant?: ButtonVariant
   /** Accessible label for screen readers. If not provided, uses label prop */
   'aria-label'?: string
 }
@@ -31,11 +33,7 @@ const arrowVariants: Variants = {
   initial: { x: 0 },
   hover: {
     x: -3,
-    transition: {
-      type: 'spring',
-      stiffness: 400,
-      damping: 15,
-    },
+    transition: springStandard,
   },
 }
 
@@ -48,11 +46,7 @@ const textVariants: Variants = {
     width: 'auto',
     opacity: 1,
     transition: {
-      width: {
-        type: 'spring',
-        stiffness: 300,
-        damping: 25,
-      },
+      width: springFast,
       opacity: {
         duration: 0.2,
         delay: 0.05,
@@ -71,21 +65,6 @@ const textVariants: Variants = {
       opacity: {
         duration: 0.1,
       },
-    },
-  },
-}
-
-const rippleVariants: Variants = {
-  initial: {
-    scale: 0,
-    opacity: 0.6,
-  },
-  animate: {
-    scale: 4,
-    opacity: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.4, 0, 0.2, 1],
     },
   },
 }
@@ -110,10 +89,8 @@ export function BackButton({
   'aria-label': ariaLabel,
   ...props
 }: BackButtonProps) {
-  const [isHovered, setIsHovered] = useState(false)
-  const [ripples, setRipples] = useState<RippleEffect[]>([])
-  const buttonRef = useRef<HTMLButtonElement>(null)
-  const rippleIdRef = useRef(0)
+  const { ref, isHovered, hoverProps } = useHover<HTMLButtonElement>()
+  const { ripples, createRipple } = useRipple<HTMLButtonElement>({ disabled })
 
   const config = sizeConfig[size]
   const variantStyles = variantConfig[variant]
@@ -121,46 +98,31 @@ export function BackButton({
   // Use aria-label if provided, otherwise use label prop
   const accessibleLabel = ariaLabel || label
 
-  const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
-    if (disabled) return
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (disabled) return
+      createRipple(e)
+      onClick?.(e)
+    },
+    [disabled, createRipple, onClick]
+  )
 
-    // Create ripple effect
-    const button = buttonRef.current
-    if (button) {
-      const rect = button.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
-
-      const newRipple: RippleEffect = {
-        id: rippleIdRef.current++,
-        x,
-        y,
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLButtonElement>) => {
+      // Allow Enter and Space to trigger click
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        if (!disabled) {
+          handleClick(e as unknown as React.MouseEvent<HTMLButtonElement>)
+        }
       }
-
-      setRipples(prev => [...prev, newRipple])
-
-      // Clean up ripple after animation
-      setTimeout(() => {
-        setRipples(prev => prev.filter(r => r.id !== newRipple.id))
-      }, 600)
-    }
-
-    onClick?.(e)
-  }
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
-    // Allow Enter and Space to trigger click
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault()
-      if (!disabled) {
-        handleClick(e as unknown as MouseEvent<HTMLButtonElement>)
-      }
-    }
-  }
+    },
+    [disabled, handleClick]
+  )
 
   return (
     <motion.button
-      ref={buttonRef}
+      ref={ref}
       type="button"
       role="button"
       aria-label={accessibleLabel}
@@ -175,21 +137,20 @@ export function BackButton({
         variantStyles.base,
         className
       )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      {...hoverProps}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       disabled={disabled}
       tabIndex={disabled ? -1 : 0}
       initial="initial"
       animate={isHovered ? 'hover' : 'initial'}
-      whileTap={{ scale: 0.97 }}
+      whileTap={tapScale}
       {...props}
     >
       {/* Ripple effects container */}
       <span className={cn('absolute inset-0 overflow-hidden rounded-full')}>
         <AnimatePresence>
-          {ripples.map(ripple => (
+          {ripples.map((ripple: RippleEffect) => (
             <motion.span
               key={ripple.id}
               className={cn(

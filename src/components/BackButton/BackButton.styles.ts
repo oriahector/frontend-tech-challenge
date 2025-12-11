@@ -5,8 +5,21 @@
  */
 
 import { cn } from '../../lib/utils'
+import type { SizeConfig, VariantConfig } from '../../types'
 
-export const sizeConfig = {
+interface BackButtonSizeConfig {
+  button: string
+  buttonFixed: string
+  icon: number
+  padding: string
+}
+
+interface BackButtonVariantConfig {
+  base: string
+  ripple: string
+}
+
+export const sizeConfig: SizeConfig<BackButtonSizeConfig> = {
   sm: {
     button: 'h-9 min-w-9 text-sm gap-1.5',
     buttonFixed: 'h-9 w-9 text-sm gap-1.5',
@@ -25,9 +38,9 @@ export const sizeConfig = {
     icon: 24,
     padding: 'px-4',
   },
-} as const
+}
 
-export const variantConfig = {
+export const variantConfig: VariantConfig<BackButtonVariantConfig> = {
   default: {
     base: 'bg-zinc-900 text-zinc-50 hover:bg-zinc-800',
     ripple: 'bg-white/25',
@@ -40,7 +53,7 @@ export const variantConfig = {
     base: 'bg-transparent text-zinc-900 border-2 border-zinc-300 hover:border-zinc-400 hover:bg-zinc-50',
     ripple: 'bg-zinc-900/10',
   },
-} as const
+}
 
 export const baseStyles = {
   button: cn(
